@@ -3,7 +3,7 @@ const destinations = [
     {
         id: 1,
         name: "La Paz",
-        image: "https://images.unsplash.com/photo-1513415479633-6e67f2dcff7c?w=500&h=400&fit=crop",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPFWTGN-suOuuNCOBMKP35oN9ef27TRGNjAg&s",
         rating: "4.9",
         price: "Bs 2,499",
         description: "Capital andina con vistas espectaculares",
@@ -12,7 +12,7 @@ const destinations = [
     {
         id: 2,
         name: "Salar de Uyuni",
-        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=400&fit=crop",
+        image: "https://estaticos-television.unitel.bo/binrepository/1202x512/89c0/1024d512/none/160810533/YXCO/image-salar-uyuni-intiraymi-expediciones-to_101-13748300_20251123201013.webp",
         rating: "4.8",
         price: "Bs 3,499",
         description: "El espejo más grande del mundo",
@@ -21,7 +21,7 @@ const destinations = [
     {
         id: 3,
         name: "Lago Titicaca",
-        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=400&fit=crop",
+        image: "https://media.istockphoto.com/id/1128631508/es/foto/isla-del-sol-en-el-lago-titicaca-en-bolivia.jpg?s=612x612&w=0&k=20&c=BdvBn8ATHC6-jHqBqWMKAuzHpnSzT-6dlS-4N-f0HWI=",
         rating: "5.0",
         price: "Bs 2,899",
         description: "Islas flotantes y tradiciones ancestrales",
@@ -30,7 +30,7 @@ const destinations = [
     {
         id: 4,
         name: "Cochabamba",
-        image: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=500&h=400&fit=crop",
+        image: "https://rrii.unifranz.edu.bo/images/campus/cochabamba.jpg",
         rating: "4.7",
         price: "Bs 1,899",
         description: "Ciudad de la eterna primavera",
@@ -39,7 +39,7 @@ const destinations = [
     {
         id: 5,
         name: "Santa Cruz de la Sierra",
-        image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=500&h=400&fit=crop",
+        image: "https://a.travel-assets.com/findyours-php/viewfinder/images/res70/115000/115563-Santa-Cruz.jpg",
         rating: "4.8",
         price: "Bs 2,199",
         description: "Puerta de la Amazonía boliviana",
@@ -48,7 +48,7 @@ const destinations = [
     {
         id: 6,
         name: "Yungas",
-        image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500&h=400&fit=crop",
+        image: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2f/fc/06/4c/caption.jpg?w=1200&h=-1&s=1",
         rating: "4.9",
         price: "Bs 1,599",
         description: "Aventura en la selva tropical",

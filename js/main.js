@@ -2,56 +2,56 @@
 const destinations = [
     {
         id: 1,
-        name: "Paris, Francia",
-        image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=500&h=400&fit=crop",
+        name: "La Paz",
+        image: "https://images.unsplash.com/photo-1513415479633-6e67f2dcff7c?w=500&h=400&fit=crop",
         rating: "4.9",
-        price: "$1,299",
-        description: "La ciudad del amor y las luces",
+        price: "Bs 2,499",
+        description: "Capital andina con vistas espectaculares",
         duration: "5 días"
     },
     {
         id: 2,
-        name: "Japón",
-        image: "https://images.unsplash.com/photo-1522383150241-6959a2543b11?w=500&h=400&fit=crop",
+        name: "Salar de Uyuni",
+        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=400&fit=crop",
         rating: "4.8",
-        price: "$1,899",
-        description: "Tradición y modernidad en armonía",
+        price: "Bs 3,499",
+        description: "El espejo más grande del mundo",
         duration: "7 días"
     },
     {
         id: 3,
-        name: "Maldivas",
-        image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=500&h=400&fit=crop",
+        name: "Lago Titicaca",
+        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=400&fit=crop",
         rating: "5.0",
-        price: "$2,499",
-        description: "Playas paradisiacas y arrecifes",
+        price: "Bs 2,899",
+        description: "Islas flotantes y tradiciones ancestrales",
         duration: "6 días"
     },
     {
         id: 4,
-        name: "Barcelona, España",
-        image: "https://images.unsplash.com/photo-1583458332506-dead9b56a3e1?w=500&h=400&fit=crop",
+        name: "Cochabamba",
+        image: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=500&h=400&fit=crop",
         rating: "4.7",
-        price: "$1,099",
-        description: "Arquitectura única y cultura vibrante",
+        price: "Bs 1,899",
+        description: "Ciudad de la eterna primavera",
         duration: "4 días"
     },
     {
         id: 5,
-        name: "Nueva York, USA",
-        image: "https://images.unsplash.com/photo-1490728143518-7055cda97e90?w=500&h=400&fit=crop",
+        name: "Santa Cruz de la Sierra",
+        image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=500&h=400&fit=crop",
         rating: "4.8",
-        price: "$1,499",
-        description: "La ciudad que nunca duerme",
+        price: "Bs 2,199",
+        description: "Puerta de la Amazonía boliviana",
         duration: "5 días"
     },
     {
         id: 6,
-        name: "Tailandia",
-        image: "https://images.unsplash.com/photo-1528127269029-c440edc4b16d?w=500&h=400&fit=crop",
+        name: "Yungas",
+        image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500&h=400&fit=crop",
         rating: "4.9",
-        price: "$899",
-        description: "Templos antiguos y playas exóticas",
+        price: "Bs 1,599",
+        description: "Aventura en la selva tropical",
         duration: "6 días"
     }
 ];
@@ -62,7 +62,7 @@ const packages = [
         id: 1,
         name: "Luna de Miel Romántica",
         badge: "Popular",
-        price: "$3,499",
+        price: "Bs 6,999",
         details: [
             "Hotel 5 estrellas",
             "Desayuno incluido",
@@ -74,7 +74,7 @@ const packages = [
         id: 2,
         name: "Aventura Extrema",
         badge: "Aventura",
-        price: "$2,299",
+        price: "Bs 4,599",
         details: [
             "Hospedaje premium",
             "Actividades extremas",
@@ -86,7 +86,7 @@ const packages = [
         id: 3,
         name: "Relajación y Bienestar",
         badge: "Relax",
-        price: "$2,999",
+        price: "Bs 5,999",
         details: [
             "Resort spa de lujo",
             "Masajes terapéuticos",
@@ -98,7 +98,7 @@ const packages = [
         id: 4,
         name: "Explorador Cultural",
         badge: "Cultura",
-        price: "$1,799",
+        price: "Bs 3,599",
         details: [
             "Museo exclusivo",
             "Guía especializado",
@@ -110,7 +110,7 @@ const packages = [
         id: 5,
         name: "Escapada Familiar",
         badge: "Familia",
-        price: "$2,199",
+        price: "Bs 4,399",
         details: [
             "Habitaciones amplias",
             "Actividades infantiles",
@@ -122,7 +122,7 @@ const packages = [
         id: 6,
         name: "Viaje de Negocios",
         badge: "Negocio",
-        price: "$1,599",
+        price: "Bs 3,199",
         details: [
             "Hotel business",
             "Internet premium",
@@ -138,8 +138,8 @@ const offers = [
         id: 1,
         name: "Oferta Especial Verano",
         image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500&h=300&fit=crop",
-        originalPrice: "$1,999",
-        finalPrice: "$999",
+        originalPrice: "Bs 3,999",
+        finalPrice: "Bs 1,999",
         discount: "50%",
         dates: "Hasta 30 de septiembre"
     },
@@ -147,8 +147,8 @@ const offers = [
         id: 2,
         name: "Descuento Aéreo",
         image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=500&h=300&fit=crop",
-        originalPrice: "$1,599",
-        finalPrice: "$1,099",
+        originalPrice: "Bs 3,199",
+        finalPrice: "Bs 2,199",
         discount: "30%",
         dates: "Hasta 31 de octubre"
     },
@@ -156,8 +156,8 @@ const offers = [
         id: 3,
         name: "Fin de Año Fantástico",
         image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500&h=300&fit=crop",
-        originalPrice: "$2,599",
-        finalPrice: "$1,799",
+        originalPrice: "Bs 5,199",
+        finalPrice: "Bs 3,599",
         discount: "30%",
         dates: "Hasta 15 de diciembre"
     }

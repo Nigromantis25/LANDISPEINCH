@@ -1,0 +1,25 @@
+@startuml C4 Context - LANDISPEINCH
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(cliente, "Cliente", "Usuario final que visita la tienda online desde su navegador")
+System_Boundary(landis, "LANDISPEINCH") {
+  System(tienda, "Tienda Web (Front-end estático)", "HTML, CSS, JavaScript - se ejecuta en el navegador del cliente")
+}
+
+System_Ext(proveedorPagos, "Proveedor de Pagos (ej. Stripe)", "Procesamiento de pagos seguro")
+System_Ext(hosting, "Hosting / CDN", "Sirve archivos estáticos: index.html, css, js, imágenes")
+System_Ext(emailService, "Proveedor de Email (opcional)", "Envía confirmaciones o notificaciones por correo")
+
+Rel(cliente, tienda, "Navega, busca productos, añade al carrito y realiza compras")
+Rel(tienda, hosting, "Descarga archivos estáticos (HTML/CSS/JS/Assets)", "HTTPS")
+Rel(tienda, proveedorPagos, "Solicita procesamiento de pago (cuando procede)", "HTTPS / API")
+Rel(tienda, emailService, "Envía confirmaciones (si está configurado)", "API / SMTP")
+
+"""
+Contexto breve:
+- Cliente: Navegador web usado por la persona.
+- Tienda Web: Aplicación estática que se ejecuta 100% en frontend (index.html + js).
+- Servicios externos: CDN/hosting, proveedor de pagos y proveedor de email.
+"""
+
+@enduml

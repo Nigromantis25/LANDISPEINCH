@@ -1,0 +1,29 @@
+@startuml C4 Component - LANDISPEINCH
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container(spa, "Static Site", "HTML/CSS/JS")
+
+Component(navbar, "Navbar", "HTML/CSS", "Muestra logo, enlaces, botón login y icono de carrito")
+Component(productGrid, "Product Grid", "JS module (loadProducts)", "Carga y renderiza `products` desde `main.js` en tarjetas")
+Component(productCard, "Product Card", "HTML/CSS component", "Visualiza imagen, título, precio y botón 'Agregar al Carrito'")
+Component(cartService, "Cart Service", "JS module", "Gestiona estado `cart`, add/remove/update, calcula total y actualiza el DOM")
+Component(cartModal, "Cart Modal", "HTML/CSS/JS", "Muestra items, cantidades y total; permite checkout")
+Component(checkoutModule, "Checkout / Invoice Module", "JS module", "Genera factura en el cliente y recolecta datos del formulario")
+Component(contactFormComp, "Contact Form", "HTML/JS", "Envía mensaje localmente y muestra notificación")
+Component(loginModalComp, "Login Modal", "HTML/JS", "UI de login; abre/cierra modal")
+
+Rel(spa, navbar, "Contiene")
+Rel(spa, productGrid, "Contiene")
+Rel(productGrid, productCard, "Renderiza")
+Rel(productCard, cartService, "Llama addToCart(productId)")
+Rel(cartService, cartModal, "Actualiza DOM del modal y contador")
+Rel(cartModal, checkoutModule, "Inicia proceso de checkout")
+Rel(checkoutModule, cartService, "Lee items del carrito para generar factura")
+Rel(spa, contactFormComp, "Contiene")
+Rel(spa, loginModalComp, "Contiene")
+
+Boundary(spa_boundary, "Front-end (client-side)") {
+  Ref(cartService, "Estado del cliente (array cart)")
+}
+
+@enduml

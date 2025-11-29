@@ -1,0 +1,39 @@
+@startuml C4 Code - Cart Module
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/LATEST/AWSPUML
+
+package "Cart Module (js/main.js)" {
+  class CartService {
+    - cart: Array
+    + addToCart(productId)
+    + updateQuantity(productId, newQuantity)
+    + removeFromCart(productId)
+    + updateCartCount()
+    + updateCartModal()
+  }
+
+  class Product {
+    - id
+    - name
+    - price
+    - image
+    - description
+  }
+
+  class UI {
+    + showNotification(message)
+    + renderProductCard(product)
+    + openCartModal()
+    + closeCartModal()
+  }
+
+  CartService "1" *-- "*" Product : stores
+  CartService ..> UI : updates DOM via
+}
+
+note "Flujo principal:
+- loadProducts() lee array products y llama a renderProductCard
+- addToCart actualiza cart (array) y luego updateCartCount + updateCartModal
+- checkout genera factura leyendo cart y rellenando elementos de invoice
+"
+
+@enduml

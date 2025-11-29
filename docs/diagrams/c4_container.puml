@@ -1,0 +1,20 @@
+@startuml C4 Container - LANDISPEINCH
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(cliente, "Cliente (Navegador)")
+System_Boundary(landis, "LANDISPEINCH") {
+  Container(browser, "Navegador", "Runs HTML/CSS/JS", "Interfaz de usuario; ejecuta la lógica de carrito y facturación en cliente")
+  Container(spa, "Static Site (Files)", "HTML/CSS/JS", "Archivos estáticos servidos por CDN/hosting: index.html, css/, js/")
+}
+
+Container_Ext(cdn, "CDN / Hosting", "Sirve archivos estáticos (index.html, css, js, images)")
+Container_Ext(proveedorPagos, "Proveedor de Pagos (Stripe u otro)", "Servicio externo de pago")
+Container_Ext(emailService, "Servicio de Email (opcional)", "Envío de correos")
+
+Rel(cliente, browser, "Carga la aplicación (archivos estáticos)")
+Rel(browser, spa, "Solicita index.html, estilos y scripts", "HTTPS")
+Rel(spa, cdn, "Almacenamiento/entrega de assets (CDN)")
+Rel(browser, proveedorPagos, "Inicia proceso de pago (API) cuando procede", "HTTPS")
+Rel(browser, emailService, "Solicita envío de emails (si está implementado)", "API/HTTPS")
+
+@enduml

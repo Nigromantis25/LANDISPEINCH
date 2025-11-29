@@ -1,7 +1,7 @@
 {
-  "name": "landispeinch-backend",
+  "name": "moverse-backend",
   "version": "1.0.0",
-  "description": "Backend para la tienda de ropa",
+  "description": "Backend para la agencia de turismo Moverse",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

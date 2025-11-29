@@ -22,7 +22,7 @@ app.use((err, req, res, next) => {
 
 // Ruta de prueba
 app.get('/api/test', (req, res) => {
-  res.json({ message: 'El servidor está funcionando correctamente' });
+  res.json({ message: 'Servidor de Moverse funcionando correctamente' });
 });
 
 // Conexión a la base de datos
@@ -30,7 +30,7 @@ const db = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'icnorte',
+  database: 'moverse',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -42,7 +42,7 @@ db.getConnection((err, connection) => {
     console.error('Error conectando a la base de datos:', err);
     return;
   }
-  console.log('Conectado a la base de datos MySQL');
+  console.log('Conectado a la base de datos MySQL - Moverse');
   connection.release();
 });
 
@@ -75,7 +75,7 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(500).json({ message: 'Error al registrar usuario' });
           }
 
-          res.status(201).json({ message: 'Usuario registrado exitosamente' });
+          res.status(201).json({ message: 'Usuario registrado exitosamente en Moverse' });
         }
       );
     });
@@ -111,7 +111,7 @@ app.post('/api/auth/login', async (req, res) => {
       // Generar token JWT
       const token = jwt.sign(
         { userId: user.id, email: user.email },
-        process.env.JWT_SECRET || 'tu_secret_key',
+        process.env.JWT_SECRET || 'tu_secret_key_moverse',
         { expiresIn: '24h' }
       );
 
@@ -123,7 +123,40 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// Rutas para reservas de viajes (nuevo)
+app.post('/api/reservas', (req, res) => {
+  try {
+    const { nombre, email, telefono, destino, fechaSalida, fechaRetorno, personas, preferencias } = req.body;
+
+    const query = `
+      INSERT INTO reservas (nombre, email, telefono, destino, fecha_salida, fecha_retorno, personas, preferencias, fecha_reserva)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `;
+
+    db.query(query, [nombre, email, telefono, destino, fechaSalida, fechaRetorno, personas, preferencias], (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Error al procesar la reserva' });
+      }
+      res.status(201).json({ message: '¡Reserva confirmada! Nos contactaremos pronto', reservaId: results.insertId });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+});
+
+app.get('/api/destinos', (req, res) => {
+  db.query('SELECT * FROM destinos', (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Error al obtener destinos' });
+    }
+    res.json(results);
+  });
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
+  console.log(`Servidor Moverse corriendo en el puerto ${PORT}`);
 });

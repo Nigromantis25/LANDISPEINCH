@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moverse - Agencia de Turismo</title>
+    <title>Open World - Agencia de Turismo</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/booking.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -14,7 +14,7 @@
         <nav class="navbar">
             <div class="logo">
                 <i class="fas fa-globe"></i>
-                <h1>Moverse</h1>
+                <h1>OPEN WORLD</h1>
                 <span class="tagline">Tu aventura comienza aquí</span>
             </div>
             <div class="nav-links">
@@ -22,6 +22,7 @@
                 <a href="#destinos">Destinos</a>
                 <a href="#paquetes">Paquetes</a>
                 <a href="#ofertas">Ofertas</a>
+                <a href="reservations.html">Registro Reservaciones</a>
                 <a href="#testimonios">Testimonios</a>
                 <a href="#contacto">Contacto</a>
             </div>
@@ -35,7 +36,7 @@
         <!-- Hero Section -->
         <section id="inicio" class="hero-section">
             <div class="hero-content">
-                <h2>Explora el Mundo con Moverse</h2>
+                <h2>Explora el Mundo con Open World</h2>
                 <p>Descubre destinos increíbles y vive experiencias inolvidables</p>
                 <a href="#destinos" class="cta-button primary">
                     <i class="fas fa-compass"></i> Explorar Destinos
@@ -45,6 +46,8 @@
                 <source src="https://videos.pexels.com/video-files/3045163/3045163-sd_640_360_25fps.mp4" type="video/mp4">
             </video>
         </section>
+
+        <!-- Registro de reservaciones movido a página separada -->
 
         <!-- Buscador de Viajes -->
         <section class="search-section">
@@ -107,7 +110,7 @@
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                     </div>
-                    <p>"Moverse hizo mi viaje a Paris increíble. Excelente servicio y atención al detalle."</p>
+                    <p>"Open World hizo mi viaje a Paris increíble. Excelente servicio y atención al detalle."</p>
                     <h4>María González</h4>
                     <p class="travel-date">Viajó a: Francia</p>
                 </div>
@@ -131,7 +134,7 @@
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                     </div>
-                    <p>"Gracias Moverse por la mejor luna de miel. ¡Volveremos pronto!"</p>
+                    <p>"Gracias Open World por la mejor luna de miel. ¡Volveremos pronto!"</p>
                     <h4>Ana y Carlos</h4>
                     <p class="travel-date">Viajaron a: Maldivas</p>
                 </div>
@@ -171,7 +174,7 @@
                         <i class="fas fa-envelope"></i>
                         <div>
                             <h4>Email</h4>
-                            <p>info@moverse.com</p>
+                            <p>info@openworld.com</p>
                         </div>
                     </div>
                     <div class="info-item">
@@ -194,38 +197,43 @@
             <form id="bookingForm" class="booking-form">
                 <div class="form-group">
                     <label>Nombre Completo</label>
-                    <input type="text" required>
+                    <input name="nombre" type="text" required>
                 </div>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" required>
+                    <input name="email" type="email" required>
                 </div>
                 <div class="form-group">
                     <label>Teléfono</label>
-                    <input type="tel" required>
+                    <input name="telefono" type="tel" required>
                 </div>
                 <div class="form-group">
                     <label>Destino</label>
-                    <input type="text" required>
+                    <input id="bookingDestination" name="destino" type="text" placeholder="Destino" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Fecha de Salida</label>
-                        <input type="date" required>
+                        <input name="fechaSalida" type="date" required>
                     </div>
                     <div class="form-group">
                         <label>Fecha de Retorno</label>
-                        <input type="date" required>
+                        <input name="fechaRetorno" type="date" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Número de Personas</label>
-                    <input type="number" min="1" value="1" required>
+                    <input name="personas" type="number" min="1" value="1" required>
                 </div>
                 <div class="form-group">
                     <label>Preferencias</label>
-                    <textarea placeholder="Cuéntanos tus preferencias..."></textarea>
+                    <textarea name="preferencias" placeholder="Cuéntanos tus preferencias..."></textarea>
                 </div>
+                <div id="selectedOfferSummary" style="margin-bottom:10px;color:#2b8a3e;font-weight:600;"></div>
+                <input type="hidden" id="offerId" name="offerId">
+                <input type="hidden" id="offerPrice" name="offerPrice">
+                <input type="hidden" id="offerDiscount" name="offerDiscount">
+                <input type="hidden" id="reservaId" name="reservaId">
                 <button type="submit" class="cta-button primary full-width">
                     <i class="fas fa-check"></i> Confirmar Reserva
                 </button>
@@ -237,7 +245,7 @@
     <div id="loginModal" class="login-modal">
         <div class="login-content">
             <button class="close-login">&times;</button>
-            <h2>Acceso a Moverse</h2>
+            <h2>Acceso a Open World</h2>
             <form id="loginForm" class="login-form">
                 <div class="form-group">
                     <label>Email</label>
@@ -276,7 +284,7 @@
     <footer>
         <div class="footer-content">
             <div class="footer-section">
-                <h3><i class="fas fa-globe"></i> Moverse</h3>
+                <h3><i class="fas fa-globe"></i> Open World</h3>
                 <p>Tu agencia de turismo de confianza para explorar el mundo</p>
             </div>
             <div class="footer-section">
@@ -297,7 +305,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2025 Moverse - Agencia de Turismo. Todos los derechos reservados.</p>
+            <p>&copy; 2025 Open World - Agencia de Turismo. Todos los derechos reservados.</p>
         </div>
     </footer>
 

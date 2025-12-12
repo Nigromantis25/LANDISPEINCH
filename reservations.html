@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Reservaciones - Open World</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/booking.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-globe"></i>
+                <h1>OPEN WORLD</h1>
+                <span class="tagline">Tu aventura comienza aquí</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="index.html#destinos">Destinos</a>
+                <a href="index.html#paquetes">Paquetes</a>
+                <a href="index.html#ofertas">Ofertas</a>
+                <a href="reservations.html">Registro Reservaciones</a>
+                <a href="index.html#testimonios">Testimonios</a>
+                <a href="index.html#contacto">Contacto</a>
+            </div>
+            <button id="loginBtn" class="login-button">
+                <i class="fas fa-user"></i> Cuenta
+            </button>
+        </nav>
+    </header>
+
+    <main style="padding: 2rem;">
+        <section class="reservations-section">
+            <h2>Registro de Reservaciones</h2>
+            <p class="section-subtitle">Listado de todas las reservaciones — editar, eliminar o generar factura.</p>
+            <div class="reservations-container">
+                <table id="reservationsTable" class="reservations-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Destino</th>
+                            <th>Fechas</th>
+                            <th>Personas</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Filas cargarán dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Edit Modal -->
+        <div id="editBookingModal" class="booking-modal" style="display:none;">
+            <div class="booking-content">
+                <button class="close-edit">&times;</button>
+                <h2>Editar Reserva</h2>
+                <form id="editBookingForm" class="booking-form">
+                    <input type="hidden" id="editReservaId" name="reservaId">
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input name="nombre" type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input name="email" type="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input name="telefono" type="tel" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Destino</label>
+                        <input name="destino" type="text" placeholder="Destino" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Fecha de Salida</label>
+                            <input name="fechaSalida" type="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha de Retorno</label>
+                            <input name="fechaRetorno" type="date" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Número de Personas</label>
+                        <input name="personas" type="number" min="1" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Preferencias</label>
+                        <textarea name="preferencias" placeholder="Cuéntanos tus preferencias..."></textarea>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <button type="submit" class="cta-button primary full-width">
+                            <i class="fas fa-check"></i> Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Invoice Modal -->
+        <div id="invoiceModal" class="invoice-modal" style="display:none;">
+            <div class="invoice-content">
+                <button class="close-invoice">&times;</button>
+                <h2>Generar Factura</h2>
+                <form id="invoiceForm" class="invoice-form">
+                    <input type="hidden" id="invoiceReservaId" name="reservaId">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input id="invoiceNombre" name="nombre" type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input id="invoiceEmail" name="email" type="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input id="invoiceTelefono" name="telefono" type="tel" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Destino</label>
+                        <input id="invoiceDestino" name="destino" type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Método de Pago</label>
+                        <select id="invoicePago" name="metodoPago" required>
+                            <option value="">Seleccione</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Transferencia">Transferencia</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="cta-button primary full-width">Generar Factura</button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-globe"></i> Open World</h3>
+                <p>Tu agencia de turismo de confianza para explorar el mundo</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/reservations.js"></script>
+</body>
+</html>

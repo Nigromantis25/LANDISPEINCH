@@ -8,10 +8,8 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
-}));
+// Permitir CORS durante desarrollo (acepta cualquier origen)
+app.use(cors());
 app.use(express.json());
 
 // Middleware de manejo de errores
@@ -22,7 +20,7 @@ app.use((err, req, res, next) => {
 
 // Ruta de prueba
 app.get('/api/test', (req, res) => {
-  res.json({ message: 'Servidor de Moverse funcionando correctamente' });
+  res.json({ message: 'Servidor de Open World funcionando correctamente' });
 });
 
 // Conexión a la base de datos
@@ -30,7 +28,7 @@ const db = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'moverse',
+  database: 'openworld',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -42,7 +40,7 @@ db.getConnection((err, connection) => {
     console.error('Error conectando a la base de datos:', err);
     return;
   }
-  console.log('Conectado a la base de datos MySQL - Moverse');
+  console.log('Conectado a la base de datos MySQL - Open World');
   connection.release();
 });
 
@@ -75,7 +73,7 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(500).json({ message: 'Error al registrar usuario' });
           }
 
-          res.status(201).json({ message: 'Usuario registrado exitosamente en Moverse' });
+          res.status(201).json({ message: 'Usuario registrado exitosamente en Open World' });
         }
       );
     });
@@ -111,7 +109,7 @@ app.post('/api/auth/login', async (req, res) => {
       // Generar token JWT
       const token = jwt.sign(
         { userId: user.id, email: user.email },
-        process.env.JWT_SECRET || 'tu_secret_key_moverse',
+        process.env.JWT_SECRET || 'tu_secret_key_openworld',
         { expiresIn: '24h' }
       );
 
@@ -126,14 +124,14 @@ app.post('/api/auth/login', async (req, res) => {
 // Rutas para reservas de viajes (nuevo)
 app.post('/api/reservas', (req, res) => {
   try {
-    const { nombre, email, telefono, destino, fechaSalida, fechaRetorno, personas, preferencias } = req.body;
+    const { nombre, email, telefono, destino, fechaSalida, fechaRetorno, personas, preferencias, offerId, offerPrice, offerDiscount } = req.body;
 
     const query = `
-      INSERT INTO reservas (nombre, email, telefono, destino, fecha_salida, fecha_retorno, personas, preferencias, fecha_reserva)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+      INSERT INTO reservas (nombre, email, telefono, destino, fecha_salida, fecha_retorno, personas, preferencias, offer_id, offer_price, offer_discount, fecha_reserva)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
     `;
 
-    db.query(query, [nombre, email, telefono, destino, fechaSalida, fechaRetorno, personas, preferencias], (err, results) => {
+    db.query(query, [nombre, email, telefono, destino, fechaSalida, fechaRetorno, personas, preferencias, offerId || null, offerPrice || null, offerDiscount || null], (err, results) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ message: 'Error al procesar la reserva' });
@@ -156,7 +154,76 @@ app.get('/api/destinos', (req, res) => {
   });
 });
 
+// Listar todas las reservas
+app.get('/api/reservas', (req, res) => {
+  db.query('SELECT * FROM reservas ORDER BY fecha_reserva DESC', (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Error al obtener reservas' });
+    }
+    res.json(results);
+  });
+});
+
+// Obtener una reserva por id
+app.get('/api/reservas/:id', (req, res) => {
+  const id = req.params.id;
+  db.query('SELECT * FROM reservas WHERE id = ?', [id], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Error al obtener la reserva' });
+    }
+    if (results.length === 0) return res.status(404).json({ message: 'Reserva no encontrada' });
+    res.json(results[0]);
+  });
+});
+
+// Actualizar reserva
+app.put('/api/reservas/:id', (req, res) => {
+  const id = req.params.id;
+  const { nombre, email, telefono, destino, fechaSalida, fechaRetorno, personas, preferencias, offerId, offerPrice, offerDiscount } = req.body;
+  const query = `
+    UPDATE reservas SET nombre = ?, email = ?, telefono = ?, destino = ?, fecha_salida = ?, fecha_retorno = ?, personas = ?, preferencias = ?, offer_id = ?, offer_price = ?, offer_discount = ? WHERE id = ?
+  `;
+  db.query(query, [nombre, email, telefono, destino, fechaSalida, fechaRetorno, personas, preferencias || '', offerId || null, offerPrice || null, offerDiscount || null, id], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Error al actualizar la reserva' });
+    }
+    res.json({ message: 'Reserva actualizada correctamente' });
+  });
+});
+
+// Eliminar reserva
+app.delete('/api/reservas/:id', (req, res) => {
+  const id = req.params.id;
+  db.query('DELETE FROM reservas WHERE id = ?', [id], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Error al eliminar la reserva' });
+    }
+    res.json({ message: 'Reserva eliminada correctamente' });
+  });
+});
+
+// Crear factura (simple: guardar registro y devolver datos para impresión)
+app.post('/api/facturas', (req, res) => {
+  const { reservaId, nombre, email, telefono, destino, fechaSalida, fechaRetorno, personas, preferencias, metodoPago } = req.body;
+  const query = `
+    INSERT INTO facturas (reserva_id, nombre, email, telefono, destino, fecha_salida, fecha_retorno, personas, preferencias, metodo_pago, fecha_factura)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+  `;
+  db.query(query, [reservaId || null, nombre, email, telefono, destino, fechaSalida, fechaRetorno, personas, preferencias || '', metodoPago || 'No especificado'], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'Error al generar la factura' });
+    }
+    const facturaId = results.insertId;
+    res.status(201).json({ message: 'Factura generada', facturaId, factura: { facturaId, reservaId, nombre, email, telefono, destino, fechaSalida, fechaRetorno, personas, preferencias, metodoPago } });
+  });
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Servidor Moverse corriendo en el puerto ${PORT}`);
+  console.log(`Servidor Open World corriendo en el puerto ${PORT}`);
 });

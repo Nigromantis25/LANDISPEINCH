@@ -1,13 +1,13 @@
-# 🌍 Moverse - Agencia de Turismo Premium
+# 🌍 Open World - Agencia de Turismo Premium
 
-Una plataforma web moderna y profesional para la agencia de turismo **Moverse**, diseñada para proporcionar la mejor experiencia de usuario con un diseño vibrante y colores llamativos.
+Una plataforma web moderna y profesional para la agencia de turismo **Open World**, diseñada para proporcionar la mejor experiencia de usuario con un diseño vibrante y colores llamativos.
 
 ## ✨ Características Principales
 
 ### 🎯 Secciones Clave
 - **Inicio Impactante**: Hero section con video de fondo y llamada a la acción destacada
 - **Búsqueda de Viajes**: Formulario interactivo para buscar destinos, fechas y número de personas
-- **Destinos Populares**: Galería de 6 destinos principales con calificaciones y precios
+- **Destinos Populares**: Galería centrada en `Salar de Uyuni` y `El Chapare` con calificaciones y precios
 - **Paquetes Turísticos**: 6 paquetes personalizados (Luna de miel, Aventura, Relax, etc.)
 - **Ofertas Especiales**: Descuentos exclusivos con porcentajes llamativos
 - **Testimonios**: Opiniones de clientes satisfechos con calificaciones de estrellas

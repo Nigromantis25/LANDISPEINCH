@@ -1,7 +1,7 @@
 {
-  "name": "moverse-backend",
+  "name": "openworld-backend",
   "version": "1.0.0",
-  "description": "Backend para la agencia de turismo Moverse",
+  "description": "Backend para la agencia de turismo Open World",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

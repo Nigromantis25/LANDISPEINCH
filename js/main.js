@@ -2,15 +2,6 @@
 const destinations = [
     {
         id: 1,
-        name: "La Paz",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPFWTGN-suOuuNCOBMKP35oN9ef27TRGNjAg&s",
-        rating: "4.9",
-        price: "Bs 2,499",
-        description: "Capital andina con vistas espectaculares",
-        duration: "5 días"
-    },
-    {
-        id: 2,
         name: "Salar de Uyuni",
         image: "https://estaticos-television.unitel.bo/binrepository/1202x512/89c0/1024d512/none/160810533/YXCO/image-salar-uyuni-intiraymi-expediciones-to_101-13748300_20251123201013.webp",
         rating: "4.8",
@@ -19,42 +10,18 @@ const destinations = [
         duration: "7 días"
     },
     {
-        id: 3,
-        name: "Lago Titicaca",
-        image: "https://media.istockphoto.com/id/1128631508/es/foto/isla-del-sol-en-el-lago-titicaca-en-bolivia.jpg?s=612x612&w=0&k=20&c=BdvBn8ATHC6-jHqBqWMKAuzHpnSzT-6dlS-4N-f0HWI=",
-        rating: "5.0",
-        price: "Bs 2,899",
-        description: "Islas flotantes y tradiciones ancestrales",
-        duration: "6 días"
-    },
-    {
-        id: 4,
-        name: "Cochabamba",
-        image: "https://rrii.unifranz.edu.bo/images/campus/cochabamba.jpg",
+        id: 2,
+        name: "El Chapare",
+        image: "https://media-cdn.tripadvisor.com/media/photo-s/05/58/e5/de/el-mundo-verde-travel.jpg",
         rating: "4.7",
-        price: "Bs 1,899",
-        description: "Ciudad de la eterna primavera",
-        duration: "4 días"
-    },
-    {
-        id: 5,
-        name: "Santa Cruz de la Sierra",
-        image: "https://a.travel-assets.com/findyours-php/viewfinder/images/res70/115000/115563-Santa-Cruz.jpg",
-        rating: "4.8",
         price: "Bs 2,199",
-        description: "Puerta de la Amazonía boliviana",
-        duration: "5 días"
-    },
-    {
-        id: 6,
-        name: "Yungas",
-        image: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2f/fc/06/4c/caption.jpg?w=1200&h=-1&s=1",
-        rating: "4.9",
-        price: "Bs 1,599",
-        description: "Aventura en la selva tropical",
-        duration: "6 días"
+        description: "Región amazónica con biodiversidad y paisajes fluviales",
+        duration: "4 días"
     }
 ];
+
+// Base URL del API (ajusta si el backend corre en otro host/puerto)
+const API_BASE = 'http://localhost:3001';
 
 // ===== DATOS DE PAQUETES =====
 const packages = [
@@ -235,7 +202,7 @@ function loadOffers() {
                     <span class="original">${offer.originalPrice}</span>
                     <span class="final">${offer.finalPrice}</span>
                 </div>
-                <a href="#" class="cta-button secondary" onclick="openBooking(event, '${offer.name}')" style="width: 100%; text-align: center;">
+                <a href="#" class="cta-button secondary" onclick="openBookingFromOffer(event, ${offer.id})" style="width: 100%; text-align: center;">
                     <i class="fas fa-tag"></i> Aprovechar
                 </a>
             </div>
@@ -244,13 +211,200 @@ function loadOffers() {
     });
 }
 
+// ===== RESERVAS (CRUD) =====
+async function loadReservations() {
+    const tableBody = document.querySelector('#reservationsTable tbody');
+    if (!tableBody) return;
+    tableBody.innerHTML = '<tr><td colspan="7">Cargando...</td></tr>';
+    try {
+        const res = await fetch(`${API_BASE}/api/reservas`);
+        if (!res.ok) throw new Error('Error cargando reservas');
+        const data = await res.json();
+        if (!Array.isArray(data)) data = [];
+        tableBody.innerHTML = '';
+        data.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${r.id}</td>
+                <td>${r.nombre}</td>
+                <td>${r.email}</td>
+                <td>${r.destino}</td>
+                <td>${r.fecha_salida || ''} - ${r.fecha_retorno || ''}</td>
+                <td>${r.personas}</td>
+                <td>
+                    <button class="cta-button secondary" onclick="editReservation(${r.id})">Editar</button>
+                    <button class="cta-button danger" onclick="deleteReservation(${r.id})">Eliminar</button>
+                    <button class="cta-button" onclick="openInvoiceFromReservation(${r.id})">Factura</button>
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    } catch (err) {
+        console.error(err);
+        tableBody.innerHTML = '<tr><td colspan="7">No se pudieron cargar las reservas.</td></tr>';
+    }
+}
+
+async function deleteReservation(id) {
+    if (!confirm('¿Eliminar esta reserva?')) return;
+    try {
+        const res = await fetch(`${API_BASE}/api/reservas/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            showNotification('Reserva eliminada');
+            loadReservations();
+        } else {
+            const e = await res.json().catch(() => ({}));
+            showNotification(e.message || 'Error al eliminar');
+        }
+    } catch (err) {
+        console.error(err);
+        showNotification('Error al eliminar reserva');
+    }
+}
+
+async function editReservation(id) {
+    try {
+        const res = await fetch(`${API_BASE}/api/reservas/${id}`);
+        if (!res.ok) throw new Error('Reserva no encontrada');
+        const r = await res.json();
+        // Rellenar modal de reserva
+        const bookingForm = document.getElementById('bookingForm');
+        bookingForm.querySelector('input[name="nombre"]').value = r.nombre || '';
+        bookingForm.querySelector('input[name="email"]').value = r.email || '';
+        bookingForm.querySelector('input[name="telefono"]').value = r.telefono || '';
+        bookingForm.querySelector('input[name="destino"]').value = r.destino || '';
+        bookingForm.querySelector('input[name="fechaSalida"]').value = r.fecha_salida ? r.fecha_salida.split(' ')[0] : '';
+        bookingForm.querySelector('input[name="fechaRetorno"]').value = r.fecha_retorno ? r.fecha_retorno.split(' ')[0] : '';
+        bookingForm.querySelector('input[name="personas"]').value = r.personas || 1;
+        bookingForm.querySelector('textarea[name="preferencias"]').value = r.preferencias || '';
+        // offer fields
+        if (document.getElementById('offerId')) document.getElementById('offerId').value = r.offer_id || '';
+        if (document.getElementById('offerPrice')) document.getElementById('offerPrice').value = r.offer_price || '';
+        if (document.getElementById('offerDiscount')) document.getElementById('offerDiscount').value = r.offer_discount || '';
+        if (document.getElementById('reservaId')) document.getElementById('reservaId').value = r.id;
+        openBooking(new Event('click'), r.destino || '');
+    } catch (err) {
+        console.error(err);
+        showNotification('No se pudo cargar la reserva para editar');
+    }
+}
+
+// ===== FACTURAS (Frontend) =====
+function openInvoiceFromReservation(reservaId) {
+    // Obtener datos de reserva y abrir modal
+    fetch(`${API_BASE}/api/reservas/${reservaId}`).then(r => r.json()).then(r => {
+        document.getElementById('invoiceReservaId').value = r.id;
+        document.getElementById('invoiceNombre').value = r.nombre || '';
+        document.getElementById('invoiceEmail').value = r.email || '';
+        document.getElementById('invoiceTelefono').value = r.telefono || '';
+        document.getElementById('invoiceDestino').value = r.destino || '';
+        const modal = document.getElementById('invoiceModal');
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+    }).catch(err => {
+        console.error(err);
+        showNotification('No se pudo cargar la reserva');
+    });
+}
+
+function closeInvoice() {
+    const modal = document.getElementById('invoiceModal');
+    if (!modal) return;
+    modal.classList.remove('active');
+    modal.style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar reservas en admin
+    loadReservations();
+
+    // Cerrar modal factura
+    const closeInvoiceBtn = document.querySelector('.close-invoice');
+    if (closeInvoiceBtn) closeInvoiceBtn.addEventListener('click', closeInvoice);
+
+    const invoiceModal = document.getElementById('invoiceModal');
+    if (invoiceModal) {
+        invoiceModal.addEventListener('click', function(e) {
+            if (e.target === invoiceModal) closeInvoice();
+        });
+    }
+
+    const invoiceForm = document.getElementById('invoiceForm');
+    if (invoiceForm) {
+        invoiceForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const reservaId = document.getElementById('invoiceReservaId').value || null;
+            const nombre = document.getElementById('invoiceNombre').value;
+            const email = document.getElementById('invoiceEmail').value;
+            const telefono = document.getElementById('invoiceTelefono').value;
+            const destino = document.getElementById('invoiceDestino').value;
+            const metodoPago = document.getElementById('invoicePago').value;
+            try {
+                const res = await fetch(`${API_BASE}/api/facturas`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reservaId, nombre, email, telefono, destino, metodoPago })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    showNotification('Factura generada');
+                    closeInvoice();
+                    // Abrir ventana con resumen imprimible
+                    const factura = data.factura || {};
+                    const win = window.open('', '_blank');
+                    win.document.write(`<pre>${JSON.stringify(factura, null, 2)}</pre>`);
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    showNotification(err.message || 'Error generando factura');
+                }
+            } catch (err) {
+                console.error(err);
+                showNotification('Error al generar factura');
+            }
+        });
+    }
+});
+
+function openBookingFromOffer(event, offerId) {
+    event.preventDefault();
+    const offer = offers.find(o => o.id === offerId);
+    if (offer) {
+        openBooking(event, offer.name, {
+            offerId: offer.id,
+            offerPrice: offer.finalPrice,
+            offerDiscount: offer.discount,
+            originalPrice: offer.originalPrice
+        });
+    } else {
+        openBooking(event, 'Oferta');
+    }
+}
+
 // ===== ABRIR MODAL DE RESERVA =====
-function openBooking(event, destination) {
+function openBooking(event, destination, extras = {}) {
     event.preventDefault();
     const modal = document.getElementById('bookingModal');
     const form = document.getElementById('bookingForm');
-    const destInput = form.querySelector('input[type="text"][placeholder="Destino"]');
-    destInput.value = destination;
+    let destInput = form.querySelector('#bookingDestination');
+    if (!destInput) {
+        destInput = form.querySelector('input[type="text"]');
+    }
+    if (destInput) destInput.value = destination;
+    // Fill offer hidden inputs if provided
+    const offerIdInput = document.getElementById('offerId');
+    const offerPriceInput = document.getElementById('offerPrice');
+    const offerDiscountInput = document.getElementById('offerDiscount');
+    const offerSummary = document.getElementById('selectedOfferSummary');
+    if (offerIdInput) offerIdInput.value = extras.offerId || '';
+    if (offerPriceInput) offerPriceInput.value = extras.offerPrice || '';
+    if (offerDiscountInput) offerDiscountInput.value = extras.offerDiscount || '';
+    if (offerSummary) {
+        if (extras.offerPrice || extras.offerDiscount) {
+            offerSummary.textContent = `Oferta: ${extras.offerPrice || ''} (${extras.offerDiscount || ''})`;
+        } else {
+            offerSummary.textContent = '';
+        }
+    }
     modal.classList.add('active');
     modal.style.display = 'flex';
 }
@@ -266,11 +420,70 @@ function closeBooking() {
 document.addEventListener('DOMContentLoaded', function() {
     const bookingForm = document.getElementById('bookingForm');
     if (bookingForm) {
-        bookingForm.addEventListener('submit', function(e) {
+        bookingForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            showNotification('¡Reserva confirmada! Nos contactaremos pronto');
-            closeBooking();
-            bookingForm.reset();
+            const nombre = bookingForm.querySelector('input[name="nombre"]').value;
+            const email = bookingForm.querySelector('input[name="email"]').value;
+            const telefono = bookingForm.querySelector('input[name="telefono"]').value;
+            const destino = bookingForm.querySelector('input[name="destino"]').value;
+            const fechaSalida = bookingForm.querySelector('input[name="fechaSalida"]').value;
+            const fechaRetorno = bookingForm.querySelector('input[name="fechaRetorno"]').value;
+            const personas = bookingForm.querySelector('input[name="personas"]').value;
+            const preferencias = bookingForm.querySelector('textarea[name="preferencias"]').value;
+            const offerId = bookingForm.querySelector('#offerId') ? bookingForm.querySelector('#offerId').value : '';
+            const offerPrice = bookingForm.querySelector('#offerPrice') ? bookingForm.querySelector('#offerPrice').value : '';
+            const offerDiscount = bookingForm.querySelector('#offerDiscount') ? bookingForm.querySelector('#offerDiscount').value : '';
+            const reservaId = bookingForm.querySelector('#reservaId') ? bookingForm.querySelector('#reservaId').value : '';
+
+            const payload = {
+                nombre,
+                email,
+                telefono,
+                destino,
+                fechaSalida,
+                fechaRetorno,
+                personas,
+                preferencias,
+                offerId,
+                offerPrice,
+                offerDiscount
+            };
+
+            try {
+                let res;
+                if (reservaId) {
+                    // Actualizar reserva existente
+                    res = await fetch(`${API_BASE}/api/reservas/${reservaId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    res = await fetch(`${API_BASE}/api/reservas`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                if (res.ok) {
+                    const data = await res.json();
+                    showNotification(data.message || '¡Reserva confirmada!');
+                    closeBooking();
+                    bookingForm.reset();
+                    // limpiar reservaId
+                    if (document.getElementById('reservaId')) document.getElementById('reservaId').value = '';
+                    loadReservations();
+                } else {
+                    const error = await res.json().catch(() => ({}));
+                    showNotification(error.message || 'Error al procesar la reserva');
+                }
+            } catch (err) {
+                console.error(err);
+                showNotification('No se pudo conectar con el servidor. Reserva guardada localmente.');
+                closeBooking();
+                bookingForm.reset();
+            }
         });
     }
 
@@ -360,7 +573,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            showNotification('¡Bienvenido a Moverse!');
+            showNotification('¡Bienvenido a Open World!');
             closeLogin();
             loginForm.reset();
         });
@@ -464,4 +677,4 @@ document.addEventListener('DOMContentLoaded', function() {
     addHoverEffect('.offer-card');
 });
 
-console.log('✈️ Moverse - Agencia de Turismo cargado correctamente');
+console.log('✈️ Open World - Agencia de Turismo cargado correctamente');

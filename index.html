@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +9,9 @@
     <link rel="stylesheet" href="css/booking.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
-    <!-- Navbar -->
+    <!-- Navbarcito xd -->
     <header>
         <nav class="navbar">
             <div class="logo">
@@ -22,7 +24,7 @@
                 <a href="#destinos">Destinos</a>
                 <a href="#paquetes">Paquetes</a>
                 <a href="#ofertas">Ofertas</a>
-                <a href="reservations.html">Registro Reservaciones</a>
+                <a href="reservations.html">Reservas</a>
                 <a href="#testimonios">Testimonios</a>
                 <a href="#contacto">Contacto</a>
             </div>
@@ -43,7 +45,8 @@
                 </a>
             </div>
             <video autoplay muted loop class="hero-video">
-                <source src="https://videos.pexels.com/video-files/3045163/3045163-sd_640_360_25fps.mp4" type="video/mp4">
+                <source src="https://videos.pexels.com/video-files/3045163/3045163-sd_640_360_25fps.mp4"
+                    type="video/mp4">
             </video>
         </section>
 
@@ -258,7 +261,8 @@
                 <button type="submit" class="cta-button primary full-width">
                     <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
                 </button>
-                <p class="register-link">¿No tienes cuenta? <a href="#" onclick="toggleRegister()">Regístrate aquí</a></p>
+                <p class="register-link">¿No tienes cuenta? <a href="#" onclick="toggleRegister()">Regístrate aquí</a>
+                </p>
             </form>
             <form id="registerForm" class="register-form" style="display:none;">
                 <div class="form-group">
@@ -276,8 +280,71 @@
                 <button type="submit" class="cta-button primary full-width">
                     <i class="fas fa-user-plus"></i> Registrarse
                 </button>
-                <p class="register-link">¿Ya tienes cuenta? <a href="#" onclick="toggleRegister()">Inicia sesión aquí</a></p>
+                <p class="register-link">¿Ya tienes cuenta? <a href="#" onclick="toggleRegister()">Inicia sesión
+                        aquí</a></p>
             </form>
+        </div>
+    </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div id="detailsModal" class="details-modal">
+        <div class="details-content">
+            <button class="close-details">&times;</button>
+            <div class="details-header">
+                <h2 id="modal-title">Nombre del Lugar</h2>
+                <div class="modal-location"><i class="fas fa-map-marker-alt"></i> <span
+                        id="modal-location">Ubicación</span></div>
+            </div>
+
+            <div class="details-body">
+                <img id="modal-image" src="" alt="Lugar" class="modal-image">
+
+                <div class="modal-info-grid">
+                    <div class="modal-description">
+                        <h3>Descripción</h3>
+                        <p id="modal-description">...</p>
+                    </div>
+
+                    <div class="modal-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <div>
+                                <h4>Precio</h4>
+                                <p id="modal-price">...</p>
+                            </div>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <h4>Horario</h4>
+                                <p id="modal-hours">...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-extras">
+                    <div class="extras-column">
+                        <h3><i class="fas fa-hiking"></i> Actividades</h3>
+                        <ul id="modal-activities">
+                            <!-- JS fill -->
+                        </ul>
+                    </div>
+                    <div class="extras-column">
+                        <h3><i class="fas fa-utensils"></i> Gastronomía</h3>
+                        <ul id="modal-gastronomy">
+                            <!-- JS fill -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="details-footer">
+                <button class="cta-button primary full-width" onclick="closeDetails()">
+                    <i class="fas fa-check"></i> Entendido
+                </button>
+            </div>
         </div>
     </div>
 
@@ -311,4 +378,5 @@
 
     <script src="js/main.js"></script>
 </body>
+
 </html>

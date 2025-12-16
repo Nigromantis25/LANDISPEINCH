@@ -1,0 +1,54 @@
+[
+    {
+        "id": 1,
+        "Lugar": "Salar de Uyuni",
+        "ubicacion": "Potosí, Bolivia",
+        "descripcion": "El mayor desierto de sal continuo y alto del mundo, con una superficie de 10 582 km². Es un espejo natural impresionante donde el cielo se une con la tierra.",
+        "actividades": [
+            "Fotografía de perspectiva",
+            "Visita a la Isla Incahuasi",
+            "Observación de flamencos",
+            "Tour de las lagunas de colores",
+            "Cena bajo las estrellas"
+        ],
+        "gastronomia": [
+            "Carne de llama",
+            "Quinoa real",
+            "Kalapurca"
+        ],
+        "precioEntrada": 3499,
+        "horarios": {
+            "lunes-viernes": "08:00 - 18:00",
+            "sabado-domingo": "07:00 - 19:00"
+        },
+        "imagenes": [
+            "https://estaticos-television.unitel.bo/binrepository/1202x512/89c0/1024d512/none/160810533/YXCO/image-salar-uyuni-intiraymi-expediciones-to_101-13748300_20251123201013.webp"
+        ]
+    },
+    {
+        "id": 2,
+        "Lugar": "El Chapare",
+        "ubicacion": "Cochabamba, Bolivia",
+        "descripcion": "Una región tropical llena de biodiversidad, ríos caudalosos y parques nacionales. Ideal para el turismo de aventura y contacto con la naturaleza.",
+        "actividades": [
+            "Rafting en el río Espíritu Santo",
+            "Canopy y Zipline",
+            "Visita al Parque Machía",
+            "Caminatas por la selva",
+            "Observación de fauna silvestre"
+        ],
+        "gastronomia": [
+            "Pescado a la parrilla (Surubí)",
+            "Platos con yuca y arroz",
+            "Frutas tropicales frescas"
+        ],
+        "precioEntrada": 2199,
+        "horarios": {
+            "lunes-viernes": "07:00 - 17:00",
+            "sabado-domingo": "06:00 - 18:00"
+        },
+        "imagenes": [
+            "https://media-cdn.tripadvisor.com/media/photo-s/05/58/e5/de/el-mundo-verde-travel.jpg"
+        ]
+    }
+]

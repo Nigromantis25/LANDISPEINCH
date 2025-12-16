@@ -134,7 +134,7 @@ const offers = [
 function loadDestinations() {
     const grid = document.querySelector('.destinations-grid');
     grid.innerHTML = '';
-    
+
     destinations.forEach(dest => {
         const card = document.createElement('div');
         card.className = 'destination-card';
@@ -148,8 +148,11 @@ function loadDestinations() {
                 <p>${dest.description}</p>
                 <p style="color: #999; font-size: 0.9rem;">Duración: ${dest.duration}</p>
                 <div class="destination-price">desde ${dest.price}</div>
-                <div class="destination-button">
-                    <a href="#" class="cta-button primary" onclick="openBooking(event, '${dest.name}')">
+        <div class="destination-button" style="display: flex; gap: 10px;">
+                    <button class="cta-button secondary" onclick="openDetails(${dest.id})" style="flex:1;">
+                        <i class="fas fa-eye"></i> Ver Detalles
+                    </button>
+                    <a href="#" class="cta-button primary" onclick="openBooking(event, '${dest.name}')" style="flex:1;">
                         <i class="fas fa-plane"></i> Reservar
                     </a>
                 </div>
@@ -159,11 +162,99 @@ function loadDestinations() {
     });
 }
 
+// ===== CARGAR DATOS JSON =====
+let tourismData = [];
+async function loadTourismData() {
+    try {
+        const response = await fetch('turismo.json');
+        if (!response.ok) throw new Error('Error al cargar datos');
+        tourismData = await response.json();
+    } catch (error) {
+        console.error('Error cargando turismo:', error);
+    }
+}
+
+// ===== ABRIR MODAL DETALLES =====
+function openDetails(id) {
+    // Aceptar id como string o número
+    const numericId = Number(id);
+
+    // Intentar obtener datos desde turismo.json
+    let data = (Array.isArray(tourismData) && tourismData.find(item => Number(item.id) === numericId)) || null;
+
+    // Si no existe en turismo.json, intentar usar la lista local `destinations`
+    if (!data) {
+        const dest = destinations.find(d => Number(d.id) === numericId);
+        if (dest) {
+            // Construir un objeto compatible con la estructura esperada
+            data = {
+                Lugar: dest.name,
+                ubicacion: dest.location || '',
+                imagenes: [dest.image || ''],
+                descripcion: dest.description || '',
+                precioEntrada: dest.price ? String(dest.price).replace(/[^0-9,.Bs\s]/g, '') : (dest.price || ''),
+                horarios: { 'lunes-viernes': '', 'sabado-domingo': '' },
+                actividades: dest.activities || [],
+                gastronomia: dest.gastronomy || []
+            };
+        }
+    }
+
+    if (!data) {
+        showNotification('Detalles no disponibles');
+        return;
+    }
+
+    document.getElementById('modal-title').textContent = data.Lugar || data.name || 'Nombre del Lugar';
+    document.getElementById('modal-location').textContent = data.ubicacion || '';
+    document.getElementById('modal-image').src = (data.imagenes && data.imagenes[0]) || data.image || '';
+    document.getElementById('modal-description').textContent = data.descripcion || data.description || '';
+    document.getElementById('modal-price').textContent = data.precioEntrada ? `Bs ${data.precioEntrada}` : (data.price || '');
+
+    // Horarios (si existen)
+    const horarios = data.horarios ? `L-V: ${data.horarios['lunes-viernes'] || ''} | S-D: ${data.horarios['sabado-domingo'] || ''}` : '';
+    document.getElementById('modal-hours').textContent = horarios;
+
+    // Listas
+    const actList = document.getElementById('modal-activities');
+    actList.innerHTML = (data.actividades || data.activities || []).map(a => `<li>${a}</li>`).join('');
+
+    const gastList = document.getElementById('modal-gastronomy');
+    gastList.innerHTML = (data.gastronomia || data.gastronomy || []).map(g => `<li>${g}</li>`).join('');
+
+    const modal = document.getElementById('detailsModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
+}
+
+function closeDetails() {
+    const modal = document.getElementById('detailsModal');
+    modal.classList.remove('active');
+    setTimeout(() => modal.style.display = 'none', 300);
+}
+
+// Event Listeners para Detalles
+document.addEventListener('DOMContentLoaded', function () {
+    loadTourismData();
+
+    const closeBtn = document.querySelector('.close-details');
+    if (closeBtn) closeBtn.addEventListener('click', closeDetails);
+
+    const modal = document.getElementById('detailsModal');
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) closeDetails();
+        });
+    }
+});
+
 // ===== CARGAR PAQUETES =====
 function loadPackages() {
     const grid = document.querySelector('.packages-grid');
     grid.innerHTML = '';
-    
+
     packages.forEach(pkg => {
         const card = document.createElement('div');
         card.className = 'package-card';
@@ -188,7 +279,7 @@ function loadPackages() {
 function loadOffers() {
     const grid = document.querySelector('.offers-grid');
     grid.innerHTML = '';
-    
+
     offers.forEach(offer => {
         const card = document.createElement('div');
         card.className = 'offer-card';
@@ -314,7 +405,7 @@ function closeInvoice() {
     modal.style.display = 'none';
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Cargar reservas en admin
     loadReservations();
 
@@ -324,14 +415,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const invoiceModal = document.getElementById('invoiceModal');
     if (invoiceModal) {
-        invoiceModal.addEventListener('click', function(e) {
+        invoiceModal.addEventListener('click', function (e) {
             if (e.target === invoiceModal) closeInvoice();
         });
     }
 
     const invoiceForm = document.getElementById('invoiceForm');
     if (invoiceForm) {
-        invoiceForm.addEventListener('submit', async function(e) {
+        invoiceForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const reservaId = document.getElementById('invoiceReservaId').value || null;
             const nombre = document.getElementById('invoiceNombre').value;
@@ -417,10 +508,10 @@ function closeBooking() {
 }
 
 // ===== MANEJAR ENVÍO DE RESERVA =====
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const bookingForm = document.getElementById('bookingForm');
     if (bookingForm) {
-        bookingForm.addEventListener('submit', async function(e) {
+        bookingForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const nombre = bookingForm.querySelector('input[name="nombre"]').value;
             const email = bookingForm.querySelector('input[name="email"]').value;
@@ -490,13 +581,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cerrar modal al hacer click fuera
     const bookingModal = document.getElementById('bookingModal');
     const closeBookingBtn = document.querySelector('.close-booking');
-    
+
     if (closeBookingBtn) {
         closeBookingBtn.addEventListener('click', closeBooking);
     }
 
     if (bookingModal) {
-        bookingModal.addEventListener('click', function(e) {
+        bookingModal.addEventListener('click', function (e) {
             if (e.target === bookingModal) {
                 closeBooking();
             }
@@ -510,10 +601,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===== FORMULARIO DE CONTACTO =====
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
+        contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
             showNotification('¡Mensaje enviado! Nos pondremos en contacto pronto');
             contactForm.reset();
@@ -537,7 +628,7 @@ function closeLogin() {
 function toggleRegister() {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
-    
+
     if (loginForm.style.display === 'none') {
         loginForm.style.display = 'flex';
         registerForm.style.display = 'none';
@@ -547,7 +638,7 @@ function toggleRegister() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const loginBtn = document.getElementById('loginBtn');
     const closeLoginBtn = document.querySelector('.close-login');
     const loginModal = document.getElementById('loginModal');
@@ -563,7 +654,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (loginModal) {
-        loginModal.addEventListener('click', function(e) {
+        loginModal.addEventListener('click', function (e) {
             if (e.target === loginModal) {
                 closeLogin();
             }
@@ -571,7 +662,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
+        loginForm.addEventListener('submit', function (e) {
             e.preventDefault();
             showNotification('¡Bienvenido a Open World!');
             closeLogin();
@@ -580,7 +671,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (registerForm) {
-        registerForm.addEventListener('submit', function(e) {
+        registerForm.addEventListener('submit', function (e) {
             e.preventDefault();
             showNotification('¡Cuenta creada exitosamente!');
             closeLogin();
@@ -590,10 +681,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===== FORMULARIO DE BÚSQUEDA =====
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const searchForm = document.getElementById('searchForm');
     if (searchForm) {
-        searchForm.addEventListener('submit', function(e) {
+        searchForm.addEventListener('submit', function (e) {
             e.preventDefault();
             showNotification('Búsqueda realizada. ¡Revisa nuestros paquetes!');
             const destino = searchForm.querySelector('input[type="text"]').value;
@@ -608,7 +699,7 @@ function showNotification(message) {
     notification.className = 'notification';
     notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.style.opacity = '0';
         notification.style.transform = 'translateX(500px)';
@@ -618,14 +709,14 @@ function showNotification(message) {
 
 // ===== SMOOTH SCROLL PARA ENLACES =====
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
         const href = this.getAttribute('href');
-        
+
         // No prevenir si es para abrir modales
         if (href === '#' || this.onclick) {
             return;
         }
-        
+
         e.preventDefault();
         const target = document.querySelector(href);
         if (target) {
@@ -643,7 +734,7 @@ const observerOptions = {
     rootMargin: '0px 0px -100px 0px'
 };
 
-const observer = new IntersectionObserver(function(entries) {
+const observer = new IntersectionObserver(function (entries) {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.style.animation = 'slideIn 0.6s ease forwards';
@@ -652,7 +743,7 @@ const observer = new IntersectionObserver(function(entries) {
     });
 }, observerOptions);
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.destination-card, .package-card, .offer-card').forEach(el => {
         el.style.opacity = '0';
         observer.observe(el);
@@ -660,13 +751,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===== EFECTOS DE HOVER EN TARJETAS =====
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const addHoverEffect = (selector) => {
         document.querySelectorAll(selector).forEach(card => {
-            card.addEventListener('mouseenter', function() {
+            card.addEventListener('mouseenter', function () {
                 this.style.transform = 'translateY(-10px)';
             });
-            card.addEventListener('mouseleave', function() {
+            card.addEventListener('mouseleave', function () {
                 this.style.transform = 'translateY(0)';
             });
         });

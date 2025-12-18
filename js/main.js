@@ -638,6 +638,37 @@ function toggleRegister() {
     }
 }
 
+// Guardar sesión de usuario
+function saveUserSession(user) {
+    localStorage.setItem('openworld_user', JSON.stringify(user));
+    updateLoginButton(user);
+}
+
+function getUserSession() {
+    const user = localStorage.getItem('openworld_user');
+    return user ? JSON.parse(user) : null;
+}
+
+function logoutUser() {
+    localStorage.removeItem('openworld_user');
+    updateLoginButton(null);
+    showNotification('Sesión cerrada correctamente');
+}
+
+function updateLoginButton(user) {
+    const loginBtn = document.getElementById('loginBtn');
+    if (!loginBtn) return;
+
+    if (user) {
+        const roleBadgeClass = user.rol || 'cliente';
+        loginBtn.innerHTML = `<i class="fas fa-user-check"></i> ${user.nombre} <span class="role-badge ${roleBadgeClass}">${user.rol}</span>`;
+        loginBtn.onclick = logoutUser;
+    } else {
+        loginBtn.innerHTML = '<i class="fas fa-user"></i> Cuenta';
+        loginBtn.onclick = openLogin;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const loginBtn = document.getElementById('loginBtn');
     const closeLoginBtn = document.querySelector('.close-login');
@@ -645,7 +676,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
 
-    if (loginBtn) {
+    // Verificar sesión existente
+    const existingUser = getUserSession();
+    if (existingUser) {
+        updateLoginButton(existingUser);
+    }
+
+    if (loginBtn && !existingUser) {
         loginBtn.addEventListener('click', openLogin);
     }
 
@@ -662,20 +699,59 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (loginForm) {
-        loginForm.addEventListener('submit', function (e) {
+        loginForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            showNotification('¡Bienvenido a Open World!');
-            closeLogin();
-            loginForm.reset();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Usar Supabase directamente para autenticación en frontend
+            try {
+                if (window.supabaseClient && window.supabaseClient.auth && window.supabaseClient.auth.login) {
+                    const data = await window.supabaseClient.auth.login(email, password);
+                    // Supabase devuelve objeto con user en data.user o data.session.user
+                    const user = (data && (data.user || (data.session && data.session.user))) || null;
+                    if (user) {
+                        saveUserSession(user);
+                        showNotification(`¡Bienvenido ${user.nombre || user.email || ''}!`);
+                        closeLogin();
+                        loginForm.reset();
+                    } else {
+                        showNotification('Credenciales inválidas');
+                    }
+                } else {
+                    showNotification('Error de configuración de autenticación');
+                }
+            } catch (err) {
+                console.error(err);
+                showNotification('No se pudo conectar con el servidor');
+            }
         });
     }
 
     if (registerForm) {
-        registerForm.addEventListener('submit', function (e) {
+        registerForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            showNotification('¡Cuenta creada exitosamente!');
-            closeLogin();
-            registerForm.reset();
+            const nombre = document.getElementById('registerNombre').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const rol = document.getElementById('registerRol').value;
+
+            // Registrar usando Supabase desde el frontend
+            try {
+                if (window.supabaseClient && window.supabaseClient.auth && window.supabaseClient.auth.register) {
+                    const data = await window.supabaseClient.auth.register(email, password, { nombre, rol });
+                    // Si no hubo error, mostramos notificación y cambiamos al formulario de login
+                    showNotification('¡Cuenta creada! Revisa tu correo para verificarla si aplica.');
+                    toggleRegister();
+                    registerForm.reset();
+                } else {
+                    showNotification('Error de configuración de autenticación');
+                }
+            } catch (err) {
+                console.error(err);
+                // Mostrar mensaje específico si supabase devuelve error
+                showNotification(err.message || 'No se pudo conectar con el servidor');
+            }
         });
     }
 });

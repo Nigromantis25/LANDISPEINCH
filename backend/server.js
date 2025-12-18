@@ -47,7 +47,11 @@ db.getConnection((err, connection) => {
 // Rutas de autenticación
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { nombre, email, password } = req.body;
+    const { nombre, email, password, rol } = req.body;
+
+    // Validar rol
+    const validRoles = ['admin', 'vendedor', 'cliente'];
+    const userRole = validRoles.includes(rol) ? rol : 'cliente';
 
     // Verificar si el usuario ya existe
     db.query('SELECT * FROM usuario WHERE email = ?', [email], async (err, results) => {
@@ -63,17 +67,17 @@ app.post('/api/auth/register', async (req, res) => {
       // Hash de la contraseña
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Insertar nuevo usuario
+      // Insertar nuevo usuario con rol
       db.query(
-        'INSERT INTO usuario (nombre, email, password) VALUES (?, ?, ?)',
-        [nombre, email, hashedPassword],
+        'INSERT INTO usuario (nombre, email, password, rol) VALUES (?, ?, ?, ?)',
+        [nombre, email, hashedPassword, userRole],
         (err, results) => {
           if (err) {
             console.error(err);
             return res.status(500).json({ message: 'Error al registrar usuario' });
           }
 
-          res.status(201).json({ message: 'Usuario registrado exitosamente en Open World' });
+          res.status(201).json({ message: 'Usuario registrado exitosamente en Open World', rol: userRole });
         }
       );
     });

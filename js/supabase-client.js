@@ -1,8 +1,8 @@
 // Supabase Client Configuration
 // Configura estas variables con tus credenciales de Supabase
 
-const SUPABASE_URL = 'https://kqopuhqnmmktjhdunpij.supabase.co'; // Ejemplo: https://xxxxxx.supabase.co
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtxb3B1aHFubW1rdGpoZHVucGlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MzgxNTMsImV4cCI6MjA1MDExNDE1M30.L890m-m7nSj93m9988-X-n88m-X-n88m-X-n88m-X-n88'; // Tu clave anónima pública
+const SUPABASE_URL = 'https://dzknkcebcxcgimfoovyy.supabase.co'; // Ejemplo: https://xxxxxx.supabase.co
+const SUPABASE_ANON_KEY = 'sb_publishable_ywCnU1Fu_956ayNP-nW0aQ_5-NQded2'; // Tu clave anónima pública
 
 // Cliente de Supabase para el frontend (JavaScript vanilla)
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

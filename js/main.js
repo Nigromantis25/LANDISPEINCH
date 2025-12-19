@@ -565,6 +565,29 @@ document.addEventListener('DOMContentLoaded', function () {
                     // limpiar reservaId
                     if (document.getElementById('reservaId')) document.getElementById('reservaId').value = '';
                     loadReservations();
+                            // Enviar también a Supabase si está configurado (no obligatorio)
+                            try {
+                                if (window.supabaseClient && window.supabaseClient.db && window.supabaseClient.db.createReserva) {
+                                    const supaPayload = {
+                                        nombre,
+                                        email,
+                                        telefono,
+                                        destino,
+                                        fecha_salida: fechaSalida || null,
+                                        fecha_retorno: fechaRetorno || null,
+                                        personas: personas || 1,
+                                        preferencias: preferencias || '',
+                                        offer_id: offerId || null,
+                                        offer_price: offerPrice || null,
+                                        offer_discount: offerDiscount || null
+                                    };
+                                    await window.supabaseClient.db.createReserva(supaPayload);
+                                    // actualizar contador en la barra
+                                    refreshReservasCount();
+                                }
+                            } catch (sErr) {
+                                console.warn('Supabase: no se pudo enviar reserva:', sErr);
+                            }
                 } else {
                     const error = await res.json().catch(() => ({}));
                     showNotification(error.message || 'Error al procesar la reserva');
@@ -782,6 +805,38 @@ function showNotification(message) {
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
+
+// ===== Contador de Reservas en la barra =====
+async function refreshReservasCount() {
+    try {
+        // Intentar obtener desde API primero
+        const res = await fetch(`${API_BASE}/api/reservas`);
+        if (res.ok) {
+            const data = await res.json();
+            const count = Array.isArray(data) ? data.length : 0;
+            const badge = document.getElementById('reservasCount');
+            if (badge) badge.textContent = count;
+            return;
+        }
+    } catch (err) {
+        // si falla API, intentar con Supabase
+        try {
+            if (window.supabaseClient && window.supabaseClient.db && window.supabaseClient.db.getAllReservas) {
+                const sdata = await window.supabaseClient.db.getAllReservas();
+                const badge = document.getElementById('reservasCount');
+                if (badge) badge.textContent = Array.isArray(sdata) ? sdata.length : 0;
+                return;
+            }
+        } catch (sErr) {
+            console.warn('No se pudo obtener contador de reservas:', sErr);
+        }
+    }
+}
+
+// refrescar contador al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => refreshReservasCount(), 500);
+});
 
 // ===== SMOOTH SCROLL PARA ENLACES =====
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {

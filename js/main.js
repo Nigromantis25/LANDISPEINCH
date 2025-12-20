@@ -564,7 +564,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     bookingForm.reset();
                     // limpiar reservaId
                     if (document.getElementById('reservaId')) document.getElementById('reservaId').value = '';
-                    loadReservations();
+                    // Si estamos en la página de registro de reservas, recargar tabla; sino, redirigir allí para que el usuario vea el registro
+                    if (window.location.pathname && window.location.pathname.endsWith('reservations.html')) {
+                        loadReservations();
+                    } else {
+                        window.location.href = '/reservations.html';
+                    }
                             // Enviar también a Supabase si está configurado (no obligatorio)
                             try {
                                 if (window.supabaseClient && window.supabaseClient.db && window.supabaseClient.db.createReserva) {
@@ -594,7 +599,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             } catch (err) {
                 console.error(err);
+                console.error('Error de red, guardando localmente');
                 showNotification('No se pudo conectar con el servidor. Reserva guardada localmente.');
+                // Guardar en localStorage para que la reserva sea visible en la página de Reservas
+                try {
+                    const localSaved = saveClientLocalReserva(payload);
+                    // actualizar contador y lista
+                    refreshReservasCount();
+                    if (typeof loadReservations === 'function') {
+                        try { loadReservations(); } catch(e){}
+                    }
+                } catch (saveErr) {
+                    console.error('No se pudo guardar localmente:', saveErr);
+                }
                 closeBooking();
                 bookingForm.reset();
             }
@@ -727,22 +744,20 @@ document.addEventListener('DOMContentLoaded', function () {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
-            // Usar Supabase directamente para autenticación en frontend
             try {
-                if (window.supabaseClient && window.supabaseClient.auth && window.supabaseClient.auth.login) {
-                    const data = await window.supabaseClient.auth.login(email, password);
-                    // Supabase devuelve objeto con user en data.user o data.session.user
-                    const user = (data && (data.user || (data.session && data.session.user))) || null;
-                    if (user) {
-                        saveUserSession(user);
-                        showNotification(`¡Bienvenido ${user.nombre || user.email || ''}!`);
-                        closeLogin();
-                        loginForm.reset();
-                    } else {
-                        showNotification('Credenciales inválidas');
-                    }
+                const res = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    saveUserSession(data.user || { email });
+                    showNotification(`¡Bienvenido ${data.user && data.user.nombre ? data.user.nombre : data.user && data.user.email ? data.user.email : email}!`);
+                    closeLogin();
+                    loginForm.reset();
                 } else {
-                    showNotification('Error de configuración de autenticación');
+                    showNotification(data.message || 'Credenciales inválidas');
                 }
             } catch (err) {
                 console.error(err);
@@ -757,23 +772,25 @@ document.addEventListener('DOMContentLoaded', function () {
             const nombre = document.getElementById('registerNombre').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
-            const rol = document.getElementById('registerRol').value;
+            const rol = document.getElementById('registerRol').value || 'cliente';
 
-            // Registrar usando Supabase desde el frontend
             try {
-                if (window.supabaseClient && window.supabaseClient.auth && window.supabaseClient.auth.register) {
-                    const data = await window.supabaseClient.auth.register(email, password, { nombre, rol });
-                    // Si no hubo error, mostramos notificación y cambiamos al formulario de login
-                    showNotification('¡Cuenta creada! Revisa tu correo para verificarla si aplica.');
-                    toggleRegister();
+                const res = await fetch(`${API_BASE}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, email, password, rol })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showNotification('Registro exitoso — ' + (data.message || 'Cuenta creada'));
+                    toggleRegister && toggleRegister();
                     registerForm.reset();
                 } else {
-                    showNotification('Error de configuración de autenticación');
+                    showNotification(data.message || 'Error al registrar usuario');
                 }
             } catch (err) {
                 console.error(err);
-                // Mostrar mensaje específico si supabase devuelve error
-                showNotification(err.message || 'No se pudo conectar con el servidor');
+                showNotification('No se pudo conectar con el servidor');
             }
         });
     }
@@ -813,7 +830,10 @@ async function refreshReservasCount() {
         const res = await fetch(`${API_BASE}/api/reservas`);
         if (res.ok) {
             const data = await res.json();
-            const count = Array.isArray(data) ? data.length : 0;
+            const serverCount = Array.isArray(data) ? data.length : 0;
+            const local = getClientLocalReservas ? getClientLocalReservas() : [];
+            const localCount = Array.isArray(local) ? local.length : 0;
+            const count = serverCount + localCount;
             const badge = document.getElementById('reservasCount');
             if (badge) badge.textContent = count;
             return;
@@ -824,7 +844,9 @@ async function refreshReservasCount() {
             if (window.supabaseClient && window.supabaseClient.db && window.supabaseClient.db.getAllReservas) {
                 const sdata = await window.supabaseClient.db.getAllReservas();
                 const badge = document.getElementById('reservasCount');
-                if (badge) badge.textContent = Array.isArray(sdata) ? sdata.length : 0;
+                const local = getClientLocalReservas ? getClientLocalReservas() : [];
+                const count = (Array.isArray(sdata) ? sdata.length : 0) + (Array.isArray(local) ? local.length : 0);
+                if (badge) badge.textContent = count;
                 return;
             }
         } catch (sErr) {
@@ -837,6 +859,95 @@ async function refreshReservasCount() {
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => refreshReservasCount(), 500);
 });
+
+// ===== GUARDADO LOCAL (CLIENT-SIDE) =====
+function getClientLocalReservas() {
+    try {
+        const raw = localStorage.getItem('openworld_local_reservas') || '[]';
+        const data = JSON.parse(raw);
+        return Array.isArray(data) ? data : [];
+    } catch (err) {
+        console.error('getClientLocalReservas error', err);
+        return [];
+    }
+}
+
+function saveClientLocalReserva(reserva) {
+    try {
+        const list = getClientLocalReservas();
+        const record = {
+            id: `local-${Date.now()}`,
+            nombre: reserva.nombre || '',
+            email: reserva.email || '',
+            telefono: reserva.telefono || '',
+            destino: reserva.destino || '',
+            fecha_salida: reserva.fechaSalida || reserva.fecha_salida || null,
+            fecha_retorno: reserva.fechaRetorno || reserva.fecha_retorno || null,
+            personas: reserva.personas || 1,
+            preferencias: reserva.preferencias || '',
+            offer_id: reserva.offerId || reserva.offer_id || null,
+            offer_price: reserva.offerPrice || reserva.offer_price || null,
+            offer_discount: reserva.offerDiscount || reserva.offer_discount || null,
+            fecha_reserva: new Date().toISOString(),
+            _local: true
+        };
+        list.push(record);
+        localStorage.setItem('openworld_local_reservas', JSON.stringify(list));
+        return record;
+    } catch (err) {
+        console.error('saveClientLocalReserva error', err);
+        throw err;
+    }
+}
+
+// ===== SINCRONIZAR RESERVAS LOCALES AL SERVIDOR =====
+async function syncLocalReservas() {
+    const local = getClientLocalReservas();
+    // iterar sobre una copia para evitar problemas al modificar localStorage mientras iteramos
+    for (const r of Array.from(local)) {
+        try {
+            const payload = {
+                nombre: r.nombre || '',
+                email: r.email || '',
+                telefono: r.telefono || '',
+                destino: r.destino || '',
+                fechaSalida: r.fecha_salida || null,
+                fechaRetorno: r.fecha_retorno || null,
+                personas: r.personas || 1,
+                preferencias: r.preferencias || '',
+                offerId: r.offer_id || null,
+                offerPrice: r.offer_price || null,
+                offerDiscount: r.offer_discount || null
+            };
+
+            const res = await fetch(`${API_BASE}/api/reservas`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                // si se envía correctamente, eliminar del localStorage
+                const remaining = getClientLocalReservas().filter(x => x.id !== r.id);
+                localStorage.setItem('openworld_local_reservas', JSON.stringify(remaining));
+                console.log('Reserva local sincronizada:', r.id);
+            } else {
+                console.warn('Servidor rechazó la reserva local:', r.id);
+            }
+        } catch (err) {
+            console.warn('Error de red al sincronizar reserva local:', r.id, err);
+            // si hay error de red, salimos para reintentar más tarde
+        }
+    }
+    // Actualizar contador y lista en UI
+    try { refreshReservasCount(); } catch (e) { }
+}
+
+// Reintentar cuando el navegador recupere conectividad
+window.addEventListener('online', () => { syncLocalReservas(); });
+
+// Intentar sincronizar al cargar la página
+document.addEventListener('DOMContentLoaded', () => { setTimeout(syncLocalReservas, 1500); });
 
 // ===== SMOOTH SCROLL PARA ENLACES =====
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {

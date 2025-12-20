@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "supabase:test": "node supabase/test.js",
+    "supabase:seed": "node supabase/seed.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

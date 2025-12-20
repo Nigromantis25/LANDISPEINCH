@@ -399,6 +399,80 @@ section h2 {
     margin-bottom: 1rem;
 }
 
+/* ===== RESERVAS (MEJORAS DE DISEÑO) ===== */
+.reservations-container {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+}
+
+.reservations-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.reservations-table thead th {
+    text-align: left;
+    padding: 12px 16px;
+    background: linear-gradient(90deg, rgba(255,107,107,0.08), rgba(78,204,196,0.03));
+    color: var(--dark);
+    font-weight: 700;
+    border-bottom: 1px solid #eee;
+}
+
+.reservations-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f2f2f2;
+    vertical-align: middle;
+}
+
+.reservations-table tbody tr:hover {
+    background: rgba(78,204,196,0.03);
+}
+
+.reservations-table .badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #f0f0f0;
+    color: #333;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* Botones de acción más compactos */
+.cta-button.small {
+    padding: 0.45rem 0.65rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.cta-button.danger {
+    background: #e74c3c;
+    color: white;
+}
+
+.cta-button.danger:hover {
+    box-shadow: 0 8px 20px rgba(231,76,60,0.25);
+}
+
+.actions-group {
+    display:flex;
+    gap:8px;
+    align-items:center;
+}
+
+/* Responsive: convertir la tabla en tarjetas en pantallas pequeñas */
+@media (max-width: 900px) {
+    .reservations-table thead { display: none; }
+    .reservations-table, .reservations-table tbody, .reservations-table tr, .reservations-table td { display: block; width: 100%; }
+    .reservations-table tr { margin-bottom: 1rem; background: #fff; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.04); padding: 12px; }
+    .reservations-table td { padding: 8px 12px; border: none; }
+    .reservations-table td:before { content: attr(data-label); font-weight: 700; display:block; color:#666; margin-bottom:6px; }
+}
+
 .package-card h3 {
     font-size: 1.5rem;
     color: var(--dark);
